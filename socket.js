@@ -1,0 +1,1 @@
+export default new WebSocket("ws://192.168.0.31:8082/chat-socket/gandalf")
