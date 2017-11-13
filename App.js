@@ -4,6 +4,7 @@ import ChatRoom from './screens/ChatRoom'
 import NewMessage from './screens/NewMessage'
 import { StackNavigator} from 'react-navigation';
 import {Icon} from 'react-native-elements'
+import {store} from './socket'
 
 const Navigator = StackNavigator({
   Home: { 
@@ -20,7 +21,7 @@ const Navigator = StackNavigator({
   ChatRoom: {
     screen: ChatRoom,
     navigationOptions:({navigation}) =>({
-      title: navigation.state.params.room.title,
+      title: store.rooms.find(room => room.id == navigation.state.params.roomID).title,
       headerStyle:{
         marginTop:25
       },

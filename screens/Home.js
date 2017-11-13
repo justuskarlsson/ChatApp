@@ -7,45 +7,23 @@ import socket, {store} from '../socket'
 
 export default class Home extends React.Component {
 
-  state = {
-    rooms: [],
-    userInfo: {},
-    users:{},
-  }
-  
-  onMessageNew = ({fromUserID, id, dateSent, content, roomID})=>{
-    var {rooms} = this.state
-    this.setState({
-        rooms: rooms.map(room => 
-               (room.id == roomID)
-               ? {...room, messages:[...room.messages, {fromUserID, id, dateSent, content}]}
-               : room
-              )
-    })
-  }
-
-  onInit = ({rooms, userInfo, users})=>{
-    this.setState({
-      rooms, userInfo, users
-    })
-    store.rooms = rooms
-    store.userInfo = userInfo
-    store.users = users
-
+  componentWillUnmount(){
+    this._listen1.off()
+    this._listen2.off()
   }
 
   constructor(props){
     super(props)
-
-    socket.onopen = ()=>{
+    this.state={
+      rooms: store.rooms,
+      users: store.users,
     }
 
-    socket.onmessage = (e) =>{
-      var data = JSON.parse(e.data)
- 
-      if(data.route == "message/new") return this.onMessageNew(data.data)
-      if(data.route == "init")        return this.onInit(data.data)
-    }
+    _listen1 = store.on('rooms',(rooms)=> this.setState({rooms}))
+    _listen2 = store.on('users',(users)=> this.setState({users}))
+    
+
+
   }  
   
   // <RoomPreview />
@@ -61,17 +39,6 @@ export default class Home extends React.Component {
                 avatar={{uri:prev.imageURL}}
                 key={item.id}
                 />
-      /*
-      return (
-        <RoomPreview 
-            key={room.id}  
-            id={room.id}
-            onPress={this.roomClicked}
-            messageTitle={prev.messageTitle.length > 20 ? prev.messageTitle.substring(0,20)+"..." : prev.messageTitle} 
-            title={room.title.length > 18 ? room.title.substring(0,18)+"..." : room.title}
-            imageURL={prev.imageURL} />
-      )
-      */
  }
 
   // <Root />
@@ -80,7 +47,7 @@ export default class Home extends React.Component {
       <View style={styles.container}>
         <FlatList
             data={this.state.rooms}
-            keyExtractor={(item, index)=>item.id} 
+            keyExtractor={(item, index)=>index} 
             renderItem={this.renderRoom}
         />  
       </View>
@@ -89,40 +56,20 @@ export default class Home extends React.Component {
 
   getRoomPreview = (room)=>{
     var msg = room.messages[room.messages.length -1]
-    var content = msg.content
+    var messageTitle = msg.content
     var imageURL = this.state.users[msg.fromUserID].imageURL
-    return {messageTitle:content, imageURL}
+    return {messageTitle, imageURL}
   }
 
   roomClicked = (id) =>{
     const { navigate } = this.props.navigation;
     navigate("ChatRoom", {
-      id, 
-      room: this.state.rooms.find(room => room.id == id),
-      userInfo:this.state.userInfo,
-      users:this.state.users
+      roomID:id
     })
     console.log("room :"+id+" clicked")
   }
 }
 
-const RoomPreview = ({onPress, id, imageURL, title, messageTitle}) =>{
-    const handlePress = (e) =>{
-      onPress(id)
-    }
-    return(
-      <TouchableHighlight onPress={handlePress} style={styles.roomHighlight} >
-        <View>
-          <Image style={styles.roomImage} source={{uri:imageURL}} />
-          <View style={styles.roomTitles}>
-            <Text style={styles.roomTitle} >{title}</Text>
-            <Text style={styles.roomSubtitle}>{messageTitle}</Text>
-          </View>
-          <View style={styles.horizontalBorder}></View>
-        </View>
-      </TouchableHighlight>
-    )
-}
 
 
 const styles = StyleSheet.create({

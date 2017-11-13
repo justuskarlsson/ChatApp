@@ -17,14 +17,14 @@ class Store {
     update = (key, val, route = "", data = {}) => {
         this[key] = val
         // maybe add check so that 
+        console.log(`${key} was updated with ${val}`)
         if (this._listeners[key]){
-            Object.entries(this._listeners[key]).map( ([key,{func, check}]) =>{
-                if(key == 0){
-                    continue
-                }
-                // if lCheck => lCheck(route, args)
-                if( check(route, data) ){
-                    func(val)
+            Object.entries(this._listeners[key]).map( ([funcKey,{func, check}]) =>{
+                if (funcKey != 0){
+                     // if lCheck => lCheck(route, args)
+                    if( check(route, data) ){
+                        func(val)
+                    }
                 }
             })
         }
@@ -42,12 +42,12 @@ class Store {
             check
         }
         console.log(`Listener ${id} on ${key} was added.`)
-        const remove = ()=> {
+        const off = ()=> {
             delete this._listeners[key][id]
             console.log(`Listener ${id} on ${key} was removed.`)
         }
         return {
-            off : remove
+            off
         }
     }
 
@@ -67,11 +67,21 @@ socket.onmessage = (e) =>{
                 : room
             ), route, data
         )
-    }
-    else if(route == "init") {
+    } else if(route == "init") {
+        store.update('users', data.users, route, data)
+        store.update('rooms', data.rooms, route, data)
+        store.update('userInfo', data.userInfo, route, data)
+        
+    } else if(route == "room/new") {
+        /* Not necessary now, already has all users, later
+        data.user.map(userID=>{
+        })
+        */
+        store.update('rooms', [...store.rooms, {
+            id:data.roomID, title:data.roomTitle, messages:[data.message]
+        }], route, data)
         
     }
 }
-
 
 export default socket
