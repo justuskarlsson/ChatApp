@@ -1,14 +1,11 @@
 import React from 'react';
 import { StyleSheet, Text, View, Dimensions,
          Image, TouchableHighlight, FlatList } from 'react-native';
-import socket from '../socket'
-import {observer} from 'mobx-react'
-import Store from '../store'
+import {Icon, SearchBar, List, ListItem} from 'react-native-elements'
+import socket, {store} from '../socket'
+
 
 export default class Home extends React.Component {
-  static navigationOptions = {
-    title: 'Chat Rooms',
-  };
 
   state = {
     rooms: [],
@@ -31,6 +28,9 @@ export default class Home extends React.Component {
     this.setState({
       rooms, userInfo, users
     })
+    store.rooms = rooms
+    store.userInfo = userInfo
+    store.users = users
 
   }
 
@@ -52,6 +52,16 @@ export default class Home extends React.Component {
   renderRoom = ({item})=>{
       var room = item
       var prev = this.getRoomPreview(room)
+      const onPress = () => this.roomClicked(room.id)
+      return <ListItem
+                roundAvatar 
+                onPress={onPress}
+                title = {room.title.length > 18 ? room.title.substring(0,18)+"..." : room.title}
+                subtitle = {prev.messageTitle.length > 20 ? prev.messageTitle.substring(0,20)+"..." : prev.messageTitle}
+                avatar={{uri:prev.imageURL}}
+                key={item.id}
+                />
+      /*
       return (
         <RoomPreview 
             key={room.id}  
@@ -61,6 +71,7 @@ export default class Home extends React.Component {
             title={room.title.length > 18 ? room.title.substring(0,18)+"..." : room.title}
             imageURL={prev.imageURL} />
       )
+      */
  }
 
   // <Root />
@@ -68,12 +79,10 @@ export default class Home extends React.Component {
     return (
       <View style={styles.container}>
         <FlatList
-            style={styles.roomContainer}
             data={this.state.rooms}
             keyExtractor={(item, index)=>item.id} 
             renderItem={this.renderRoom}
-        />
-        
+        />  
       </View>
     );
   }
@@ -87,7 +96,12 @@ export default class Home extends React.Component {
 
   roomClicked = (id) =>{
     const { navigate } = this.props.navigation;
-    navigate("ChatRoom", {id})
+    navigate("ChatRoom", {
+      id, 
+      room: this.state.rooms.find(room => room.id == id),
+      userInfo:this.state.userInfo,
+      users:this.state.users
+    })
     console.log("room :"+id+" clicked")
   }
 }

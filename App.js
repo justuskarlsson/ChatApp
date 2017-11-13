@@ -1,21 +1,47 @@
 import React from 'react';
-import {Provider} from 'react-redux'
-import {createStore} from 'redux'
-import reducers from './redux/reducers'
+import Home from './screens/Home'
+import ChatRoom from './screens/ChatRoom'
+import NewMessage from './screens/NewMessage'
+import { StackNavigator} from 'react-navigation';
+import {Icon} from 'react-native-elements'
 
-import AppNavigator from './navigators/AppNavigator'
-
-
-
+const Navigator = StackNavigator({
+  Home: { 
+    screen: Home,
+    navigationOptions:({navigation}) =>({
+      title: "Chat Rooms",
+      headerRight: <Icon onPress={()=>navigation.navigate("NewMessage")} name="message" 
+                         color='#00aced' raised />,
+      headerStyle:{
+        marginTop:25
+      },
+    })
+  },
+  ChatRoom: {
+    screen: ChatRoom,
+    navigationOptions:({navigation}) =>({
+      title: navigation.state.params.room.title,
+      headerStyle:{
+        marginTop:25
+      },
+    })
+  },
+  NewMessage: {
+    screen: NewMessage,
+    navigationOptions:({navigation}) =>({
+      title: "New Message",
+      headerStyle:{
+        marginTop:25
+      },
+    })
+  }
+});
 
 
 export default class App extends React.Component {
-  store = createStore(reducers);
   render(){
     return (
-      <Provider store={this.store}>
-        <AppNavigator />
-      </Provider>
+        <Navigator />
     )
   }
 }
