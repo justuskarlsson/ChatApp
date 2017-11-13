@@ -51,7 +51,7 @@ socket.onmessage = (e) =>{
     var data = JSON.parse(e.data)
     var route = data.route
     data = data.data
-    if(route == "message/new") {
+    if (route == "message/new") {
         var {id, content, fromUserID, dateSent} = data
         store.update('rooms', 
             store.rooms.map(room => room.id == data.roomID ? 
@@ -59,13 +59,9 @@ socket.onmessage = (e) =>{
                 : room
             )
         )
-        if(data.roomID == this.state.id){
-            var {id, content, fromUserID, dateSent} = data
-            var {messages} = this.state
-            this.setState({
-                messages: [...messages, {id, content, fromUserID, dateSent}]
-            })
-        }
+    }
+    else if(route == "init") {
+        
     }
 }
 
