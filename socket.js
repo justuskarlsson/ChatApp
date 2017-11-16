@@ -1,4 +1,4 @@
-import {EventEmitter} from 'react-native'
+import {EventEmitter, AsyncStorage} from 'react-native'
 const socket = new WebSocket("ws://192.168.0.31:8082/chat-socket/gandalf")
 
 class Store {
@@ -54,6 +54,19 @@ class Store {
 }
 
 export const store = new Store()
+
+socket.onopen= async (e) => {
+    try{
+        var token = await AsyncStorage.getItem('token')
+        var req = {
+            route : 'login/token',
+            token
+        }
+        socket.send(JSON.stringify(req))
+    } catch (err){
+        console.log(err)
+    }
+}
 
 socket.onerror = (e) => {
     console.log(e)
