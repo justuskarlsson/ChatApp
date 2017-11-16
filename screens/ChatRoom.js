@@ -32,14 +32,12 @@ export default class ChatRoom extends React.Component{
         }
         setTimeout(()=> this.listRef.scrollToEnd(), 150)
 
-        const check1 = (route, data) => route == 'message/new' && data.roomID == this.state.room.id
-        const on1 = (rooms)=>{
+        this._listen1 = store.on('rooms', (rooms)=>{
             this.setState({
                 room: rooms.find(room => room.id == this.state.room.id)
             })
             this.listRef.scrollToEnd()
-        }
-        this._listen1 = store.on('rooms', on1, check1)
+        }, (route, data) => route == 'message/new' && data.roomID == this.state.room.id)
 
 
     }
@@ -86,7 +84,7 @@ export default class ChatRoom extends React.Component{
         setTimeout(()=>this.listRef.scrollToEnd(),150)
     }
     notEditing = () =>{
-        this.setState({editing:false})
+        this.setState({editing:false}) 
     }
 
     onChangeText = (text) => {

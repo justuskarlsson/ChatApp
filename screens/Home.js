@@ -24,8 +24,24 @@ export default class Home extends React.Component {
     
 
 
-  }  
+  }
   
+  getSortedRooms = ()=> {
+    //this sirted riins'&%&
+
+    /// sorted sorted rooms
+  }
+
+  getRoomPreview = (room)=>{
+    var msg = room.messages[room.messages.length -1]
+    var messageTitle = msg.content
+    console.log(msg.dateSent)
+    console.log(Date.parse(msg.dateSent))
+    var imageURL = this.state.users[msg.fromUserID].imageURL
+    return {messageTitle, imageURL}
+  }
+
+
   // <RoomPreview />
   renderRoom = ({item})=>{
       var room = item
@@ -52,13 +68,6 @@ export default class Home extends React.Component {
         />  
       </View>
     );
-  }
-
-  getRoomPreview = (room)=>{
-    var msg = room.messages[room.messages.length -1]
-    var messageTitle = msg.content
-    var imageURL = this.state.users[msg.fromUserID].imageURL
-    return {messageTitle, imageURL}
   }
 
   roomClicked = (id) =>{

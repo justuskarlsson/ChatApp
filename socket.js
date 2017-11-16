@@ -55,10 +55,15 @@ class Store {
 
 export const store = new Store()
 
+socket.onerror = (e) => {
+    console.log(e)
+}
+
 socket.onmessage = (e) =>{
     var data = JSON.parse(e.data)
     var route = data.route
     data = data.data
+    console.log(route, data)
     if (route == "message/new") {
         var {id, content, fromUserID, dateSent} = data
         store.update('rooms', 

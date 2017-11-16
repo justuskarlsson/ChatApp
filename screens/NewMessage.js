@@ -25,8 +25,13 @@ export default class NewMessage extends React.Component {
         var search = this.state.searchText
         console.log(search)
         var len = search.length
+        const norm = (str="") => str.toLowerCase()
         var filtered = Object.values(users).filter(user =>{
-            return user.displayName.slice(0,len) == search && !this.state.roomMembers.includes(user.id) 
+            return (
+                norm(user.displayName.slice(0,len)) == norm(search)
+                && !this.state.roomMembers.includes(user.id) 
+                && user.id != store.userInfo.id
+            )
         })
         //var filtered = Object.values(users).filter(user => user.displayName.indexOf(search) != -1 )
         return filtered.slice(0, 5)
