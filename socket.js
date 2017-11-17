@@ -1,70 +1,23 @@
-import {EventEmitter, AsyncStorage} from 'react-native'
-const socket = new WebSocket("ws://192.168.0.31:8082/chat-socket/gandalf")
+import {AsyncStorage} from 'react-native'
+import store from './store'
 
-class Store {
+const socket = new WebSocket("ws://192.168.0.31:8083/socket")
 
-
-    users = {}
-    userInfo = {}
-    rooms = []
-
-    // Should be in subclass
-    _listeners = {
-        users: {0:0},
-        userInfo: {0:0},
-        rooms: {0:0},
-    }
-    update = (key, val, route = "", data = {}) => {
-        this[key] = val
-        // maybe add check so that 
-        console.log(`${key} was updated with ${val}`)
-        if (this._listeners[key]){
-            Object.entries(this._listeners[key]).map( ([funcKey,{func, check}]) =>{
-                if (funcKey != 0){
-                     // if lCheck => lCheck(route, args)
-                    if( check(route, data) ){
-                        func(val)
-                    }
-                }
-            })
-        }
-
-    }
-
-    on = (key, func, check=(route, data)=>(true) ) => {
-        // function to check if update is valied
-        // (route, args) => route == "message/new" && args.roomID == this.state.id
-        this._listeners[key][0] ++
-        var id = this._listeners[key][0]
-
-        this._listeners[key][id] = {
-            func,
-            check
-        }
-        console.log(`Listener ${id} on ${key} was added.`)
-        const off = ()=> {
-            delete this._listeners[key][id]
-            console.log(`Listener ${id} on ${key} was removed.`)
-        }
-        return {
-            off
-        }
-    }
-
-}
-
-export const store = new Store()
 
 socket.onopen= async (e) => {
     try{
-        var token = await AsyncStorage.getItem('token')
+        var token = await AsyncStorage.getItem("token")
+        if(token == null){
+            return store.update("loggedIn", 1)
+        }
         var req = {
-            route : 'login/token',
+            route:'login/token',
             token
         }
+        store.update("token", token)
         socket.send(JSON.stringify(req))
-    } catch (err){
-        console.log(err)
+    } catch (e){
+        console.log("token init err", e)
     }
 }
 
@@ -77,29 +30,36 @@ socket.onmessage = (e) =>{
     var route = data.route
     data = data.data
     console.log(route, data)
-    if (route == "message/new") {
-        var {id, content, fromUserID, dateSent} = data
-        store.update('rooms', 
-            store.rooms.map(room => room.id == data.roomID ? 
-                {...room, messages:[ ...room.messages, {id, content, fromUserID, dateSent}]}
-                : room
-            ), route, data
-        )
-    } else if(route == "init") {
-        store.update('users', data.users, route, data)
-        store.update('rooms', data.rooms, route, data)
-        store.update('userInfo', data.userInfo, route, data)
-        
-    } else if(route == "room/new") {
-        /* Not necessary now, already has all users, later
-        data.user.map(userID=>{
-        })
-        */
-        store.update('rooms', [...store.rooms, {
-            id:data.roomID, title:data.roomTitle, messages:[data.message]
-        }], route, data)
-        
-    }
+    switch(route){
+        case "message/new":
+            var {id, content, fromUserID, dateSent} = data
+            return store.update('rooms', 
+                store.rooms.map(room => room.id == data.roomID ? 
+                    {...room, messages:[ ...room.messages, {id, content, fromUserID, dateSent}]}
+                    : room
+                ), route, data)
+        case "init":
+            console.log("INIT DATA: ", data.users)
+            store.update('users', data.users, route, data)
+            store.update('rooms', data.rooms, route, data)
+            return store.update('userInfo', data.userInfo, route, data) 
+        case "room/new":
+            return store.update('rooms', [...store.rooms, {
+                id:data.roomID, title:data.roomTitle, messages:[data.message]
+            }], route, data)
+        case 'login/password':
+            store.update('loggedIn',2, route, data)
+            AsyncStorage.setItem("token", data.token)
+            return store.update('loggedIn', 2, route, data)
+        case 'login/token':
+            return store.update('loggedIn', 2, route, data)
+        case 'login/token/error':
+            return store.update('loggedIn', 1, route, data)
+        case 'login/error': 
+            return console.log("generic error")
+        default:
+            return
+    }   
 }
 //
 

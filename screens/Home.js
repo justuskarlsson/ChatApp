@@ -2,7 +2,8 @@ import React from 'react';
 import { StyleSheet, Text, View, Dimensions,
          Image, TouchableHighlight, FlatList } from 'react-native';
 import {Icon, SearchBar, List, ListItem} from 'react-native-elements'
-import socket, {store} from '../socket'
+import socket from '../socket'
+import store from '../store'
 
 
 export default class Home extends React.Component {
@@ -19,8 +20,8 @@ export default class Home extends React.Component {
       users: store.users,
     }
 
-    _listen1 = store.on('rooms',(rooms)=> this.setState({rooms}))
-    _listen2 = store.on('users',(users)=> this.setState({users}))
+    this._listen1 = store.on('rooms',(rooms)=> this.setState({rooms}))
+    this._listen2 = store.on('users',(users)=> this.setState({users}))
     
 
 
@@ -35,15 +36,14 @@ export default class Home extends React.Component {
   getRoomPreview = (room)=>{
     var msg = room.messages[room.messages.length -1]
     var messageTitle = msg.content
-    console.log(msg.dateSent)
-    console.log(Date.parse(msg.dateSent))
-    var imageURL = this.state.users[msg.fromUserID].imageURL
+    var imageURL = this.state.users.find(user=> msg.fromUserID == user.id ).imageURL
     return {messageTitle, imageURL}
   }
 
 
   // <RoomPreview />
   renderRoom = ({item})=>{
+      if(item.id == undefined) return <ListItem title="null" />
       var room = item
       var prev = this.getRoomPreview(room)
       const onPress = () => this.roomClicked(room.id)
@@ -61,11 +61,15 @@ export default class Home extends React.Component {
   render() {
     return (
       <View style={styles.container}>
-        <FlatList
-            data={this.state.rooms}
-            keyExtractor={(item, index)=>index} 
-            renderItem={this.renderRoom}
-        />  
+        {this.state.rooms.length == 0 ? <Text>NUUULLL</Text> : 
+            <FlatList
+                data={this.state.rooms}
+                keyExtractor={(item, index)=>index} 
+                renderItem={this.renderRoom}
+            />  
+
+        }
+
       </View>
     );
   }

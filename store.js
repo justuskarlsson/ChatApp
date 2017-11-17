@@ -1,44 +1,22 @@
-import {observable} from "mobx";
+import {AsyncStorage} from 'react-native'
+import EventStore from './event-store'
 
+class Store extends EventStore {
 
+    users = []
+    userInfo = {}
+    rooms = []
+    loggedIn = 0 // 0,1,2
 
-class Store {
-    @observable users = new Map();
-    @observable rooms = [];
-    @observable userInfo = {
-        displayName:'',
-        username:'',
-        id:0,
-        imageURL:'',
-        status:0
-    }
-
-    findRoom = (id)=>{
-        return this.rooms.find(room => room.id == id)
-    }
-    initRooms = (rooms) => {
-        rooms.map(room=>{
-            this.rooms.push(observable(new Room(room)))
-        })
+    logout =  async () => {
+        AsyncStorage.removeItem("token")
+        var req = {
+            route:"logout",
+        }
+        socket.send(JSON.stringify(req))
+        this.update("loggedIn", 1)
     }
 
 }
 
-class Room {
-
-    @observable messages = []
-    @observable title = ""
-    @observable id = 0
-
-    constructor({title, id, messages}){
-        this.title = title
-        this.id = id
-        this.messages = messages
-    }
-
-}
-
-class Users {
-}
-
-export default new Store();
+export default store = new Store("users", "userInfo", "rooms", "loggedIn")

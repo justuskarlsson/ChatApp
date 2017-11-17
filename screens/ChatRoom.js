@@ -2,7 +2,8 @@ import React from 'react';
 import { StyleSheet, Text, View, Dimensions,
          ScrollView, KeyboardAvoidingView } from 'react-native';
 import {List, ListItem, FormInput} from 'react-native-elements'
-import socket, {store} from '../socket'
+import socket from '../socket'
+import store from '../store'
 
 
 export default class ChatRoom extends React.Component{
@@ -43,7 +44,7 @@ export default class ChatRoom extends React.Component{
     }
 
     renderMessage = (message) =>{
-        var user = this.state.users[message.fromUserID]
+        var user = this.state.users.find(user => message.fromUserID == user.id)
         return (
             <ListItem
                 onPress = {()=> this.listRef.scrollToEnd()}
@@ -93,11 +94,11 @@ export default class ChatRoom extends React.Component{
     
     onSubmit = () => {
         var req = {
-            route:'message/new'
+            route:'message/new',
+            content: this.state.newMessage,
+            fromUserID: store.userInfo.id,
+            roomID: this.state.room.id,
         }
-        req.content = this.state.newMessage
-        req.fromUserID = store.userInfo.id
-        req.roomID = this.state.room.id
         console.log(req)
         socket.send(JSON.stringify(req))
         this.messageRef.clearText()

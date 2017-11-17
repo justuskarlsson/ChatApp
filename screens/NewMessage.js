@@ -1,7 +1,8 @@
 import React from 'react'
 import {SearchBar, FormInput, ListItem} from 'react-native-elements'
 import {View, Dimensions, StyleSheet} from 'react-native'
-import socket, {store} from '../socket'
+import socket from '../socket'
+import store from '../store'
 
 export default class NewMessage extends React.Component {
 
@@ -26,7 +27,7 @@ export default class NewMessage extends React.Component {
         console.log(search)
         var len = search.length
         const norm = (str="") => str.toLowerCase()
-        var filtered = Object.values(users).filter(user =>{
+        var filtered = users.filter(user =>{
             return (
                 norm(user.displayName.slice(0,len)) == norm(search)
                 && !this.state.roomMembers.includes(user.id) 
