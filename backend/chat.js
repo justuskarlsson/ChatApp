@@ -70,11 +70,13 @@ const messageNew = async (id, data) =>{
         route: "message/new",
         data:{
           id:rows.insertId,
-          dateSent: message["date_sent"],
+          dateSent: message[0]["date_sent"],
           content: data.content,
-          fromUserID: userID
+          fromUserID: userID,
+          roomID: data.roomID
         }
       }
+      console.log(res)
       // Wrong, only the room's clients
 
       // Cheat
