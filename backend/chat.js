@@ -80,21 +80,20 @@ const messageNew = async (id, data) =>{
       // Wrong, only the room's clients
 
       // Cheat
+      /*
       Object.keys(Clients).map(key =>{
         Clients[key].ws.send(JSON.stringify(res))
       })
-      /*
+      */
       console.log("Rooms:  ", Rooms)
       var room = Rooms.find(room => room.id == data.roomID)
-      room.users.map(userID => {
-        Object.keys(Clients).map(key =>{
-          var userID = Clients[key].id
-          if(room.users.includes(userID)){
-            Clients[key].ws.send(JSON.stringify(res))
-          }
-        })
+      Object.keys(Clients).map(key =>{
+        var userID = Clients[key].id
+        if(room.users.includes(userID)){
+          Clients[key].ws.send(JSON.stringify(res))
+        }
+      })
         
-      })*/
 
       
     } catch (e){

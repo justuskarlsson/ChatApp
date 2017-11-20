@@ -4,8 +4,9 @@ import ChatRoom from './screens/ChatRoom'
 import NewMessage from './screens/NewMessage'
 import Loading from './screens/Loading'
 import Login from './screens/Login'
-
+import PropTypes from 'prop-types'
 import { StackNavigator} from 'react-navigation';
+import {View} from 'react-native'
 import {Icon} from 'react-native-elements'
 import store from './store'
 
@@ -29,12 +30,20 @@ const Navigator = StackNavigator({
       },
     })
   },
-  Home: { 
+  Home: { //TODO: Add logout touchable
     screen: Home,
     navigationOptions:({navigation}) =>({
       title: "Chat Rooms",
-      headerRight: <Icon onPress={()=>navigation.navigate("NewMessage")} name="message" 
-                         color='#00aced' raised />,
+      headerRight:<View style={{flexDirection:"row"}}> 
+                    <Icon
+                      raised
+                      name='logout'
+                      type='simple-line-icon'
+                      color='#f50'
+                      onPress={store.logout} />
+                    <Icon onPress={()=>navigation.navigate("NewMessage")} name="message" 
+                         color='#00aced' raised />
+                  </View>,
       headerStyle:{
         marginTop:25
       },

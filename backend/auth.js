@@ -82,6 +82,9 @@ const loginPassword = async (id, data) => {
     try{
       let ws = Clients[id].ws
       var res = await pool.query(`SELECT id, password FROM users WHERE username = "${data.username}" `)
+      if (res[0] == null){
+        return ws.send(JSON.stringify({route:"error", error:"NO results"}))
+      }
       var {password} = res[0]
       var userID = res[0].id
   

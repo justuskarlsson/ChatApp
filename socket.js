@@ -57,6 +57,8 @@ socket.onmessage = (e) =>{
             return store.update('loggedIn', 1, route, data)
         case 'login/error': 
             return console.log("generic error")
+        case 'error': 
+            return console.log("/error")
         default:
             return
     }   

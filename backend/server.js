@@ -5,12 +5,11 @@ const {Rooms} = require('./rooms')
 const {loginPassword, loginToken, register, logout} = require('./auth')
 const {messageNew, init} = require('./chat')
 let {Clients, clientsID} = require('./session')
-
-
-
+const {registerPush} = require('./push')
 
 
 const wss = new WebSocket.Server({ port: 8083 });
+
 
 // init
 
@@ -34,6 +33,7 @@ wss.on('connection', function connection(ws) {
         case 'init': return init(id, data)
         case 'message/new': return messageNew(id, data)
         case 'room/new': return roomNew(id, data)
+        case 'push/register': return registerPush(id, data)
       }
     });
 

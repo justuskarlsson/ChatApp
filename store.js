@@ -1,5 +1,6 @@
 import {AsyncStorage} from 'react-native'
 import EventStore from './event-store'
+import socket from './socket'
 
 class Store extends EventStore {
 
