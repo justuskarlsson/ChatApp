@@ -2,7 +2,7 @@ import {AsyncStorage} from 'react-native'
 import store from './store'
 
 const socket = new WebSocket("ws://192.168.0.31:8083/socket")
-
+//
 
 socket.onopen= async (e) => {
     try{
