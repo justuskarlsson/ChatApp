@@ -10,20 +10,26 @@ const initPush = async() => {
 
 }
 
+const setPush = (id, data) => {
+  Clients[id].pushToken = data.token
+  console.log("Push token set:", data.token)
+}
+
 const registerPush = async (id, data) => {
   try {
     var {token} = data
     var userID = Clients[id].id
-    var res = await pool.query(`INSERT INTO messages_users_push (token, user_id) VALUES ("?", ))`, [token, userID]) 
+    Clients[id].pushToken = token
+    var res = await pool.query(`INSERT INTO messages_users_push (token, user_id) VALUES (?, ? )`, [token, userID]) 
   } catch (e){
     console.log("Register push: ", e)
   }
 }
 
-const createMessages = () => {
+const createMessages = ({tokens, body, title}) => {
   // Create the messages that you want to send to clents
   let messages = [];
-  for (let pushToken of somePushTokens) {
+  for (let pushToken of tokens) {
     // Each push token looks like ExponentPushToken[xxxxxxxxxxxxxxxxxxxxxx]
 
     // Check that all your push tokens appear to be valid Expo push tokens
@@ -35,17 +41,13 @@ const createMessages = () => {
     // Construct a message (see https://docs.expo.io/versions/latest/guides/push-notifications.html)
     messages.push({
       to: pushToken,
+      title: title,
       sound: 'default',
-      body: 'This is a test notification',
+      body: body,
       data: { withSome: 'data' },
     })
   }
 
-  // The Expo push notification service accepts batches of notifications so
-  // that you don't need to send 1000 requests to send 1000 notifications. We
-  // recommend you batch your notifications to reduce the number of requests
-  // and to compress them (notifications with similar content will get
-  // compressed).
   let chunks = expo.chunkPushNotifications(messages);
 
   (async () => {
@@ -63,4 +65,4 @@ const createMessages = () => {
   })();
 }
 
-module.exports = {createMessages, registerPush}
+module.exports = {createMessages, registerPush, setPush}

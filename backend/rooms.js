@@ -1,6 +1,6 @@
 const pool = require('./db')
 const {Clients} = require('./session')
-let Rooms = []
+const Rooms = []
 
 
 const initRooms = async () => {
@@ -28,17 +28,9 @@ const initRooms = async () => {
     }
 }
 
-
-const roomNew = async(id, data) => {
-    try{
-        
-    } catch(e){
-
-    }
-}
-
 initRooms()
 
+
 module.exports = {
-    Rooms, roomNew
+    Rooms
 }

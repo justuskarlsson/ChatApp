@@ -1,8 +1,24 @@
 import { Permissions, Notifications } from 'expo';
+import {AsyncStorage} from 'react-native'
 import socket from './socket'
+import store from './store'
+
 
 
 export const registerForPushNotificationsAsync =  async () => {
+
+  const Done = () => store.update('checkedPush', true)
+
+  let oldToken = await AsyncStorage.getItem("push-token")
+  if (oldToken !== null){
+    var req = {
+      route:"push/token",
+      token:oldToken,
+    }
+    socket.send(JSON.stringify(req))
+    return Done()
+  }  
+
   const { status: existingStatus } = await Permissions.getAsync(
     Permissions.NOTIFICATIONS
   );
@@ -19,16 +35,18 @@ export const registerForPushNotificationsAsync =  async () => {
 
   // Stop here if the user did not grant permissions
   if (finalStatus !== 'granted') {
-    return;
+    return Done();
   }
 
   // Get the token that uniquely identifies this device
   let token = await Notifications.getExpoPushTokenAsync();
+  let res0 = await AsyncStorage.setItem("push-token", token)
 
   var req = {
     route:"push/register",
     token,
   }
   socket.send(JSON.stringify(req))
-
+  
+  return Done()
 }

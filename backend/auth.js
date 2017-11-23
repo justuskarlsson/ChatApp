@@ -7,6 +7,10 @@ const {Rooms} = require('./rooms')
 const logout = async (id, data) => {
     try{
       var rows = await pool.query(`DELETE FROM user_sessions WHERE token = "${Clients[id].token}" `)
+      if(Clients[id].pushToken.length > 0){
+        var _ = await pool.query(`DELETE FROM messages_users_push WHERE token = ? `, Clients[id].pushToken)
+        console.log("Push token removed")
+      }
       Clients[id].auth = false
       Clients[id].token = ""
       Clients[id].id = -1
@@ -83,6 +87,7 @@ const loginPassword = async (id, data) => {
       let ws = Clients[id].ws
       var res = await pool.query(`SELECT id, password FROM users WHERE username = "${data.username}" `)
       if (res[0] == null){
+        console.log("No user match",data)
         return ws.send(JSON.stringify({route:"error", error:"NO results"}))
       }
       var {password} = res[0]
@@ -90,6 +95,7 @@ const loginPassword = async (id, data) => {
   
       if (password != data.password){
         // send back error failed message
+        console.log("No password match",data)
         return ws.send(JSON.stringify({route:"error", error:"Password did not match"}))
       }
       crypto.randomBytes(64, async(err, buf)=>{

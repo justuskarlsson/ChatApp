@@ -4,6 +4,7 @@ import { StyleSheet, Text, View, Dimensions,
 import {Icon, SearchBar, List, ListItem} from 'react-native-elements'
 import socket from '../socket'
 import store from '../store'
+import {registerForPushNotificationsAsync} from '../helpers'
 
 
 export default class Home extends React.Component {
@@ -20,6 +21,10 @@ export default class Home extends React.Component {
       users: store.users,
     }
 
+    if (!store.checkedPush){
+      registerForPushNotificationsAsync()
+    }
+    
     this._listen1 = store.on('rooms',(rooms)=> this.setState({rooms}))
     this._listen2 = store.on('users',(users)=> this.setState({users}))
     

@@ -3,15 +3,16 @@
 const WebSocket = require('ws');
 const {Rooms} = require('./rooms')
 const {loginPassword, loginToken, register, logout} = require('./auth')
-const {messageNew, init} = require('./chat')
+const {messageNew, init, roomNew} = require('./chat')
 let {Clients, clientsID} = require('./session')
-const {registerPush} = require('./push')
+const {registerPush, setPush} = require('./push')
 
 
 const wss = new WebSocket.Server({ port: 8083 });
 
 
-// init
+// setInterval(()=>{console.log(Rooms)},500)
+
 
 wss.on('connection', function connection(ws) {
     var id = clientsID
@@ -19,7 +20,8 @@ wss.on('connection', function connection(ws) {
       ws,
       auth:false,
       id:-1,
-      token:""
+      token:"",
+      pushToken:""
     }
     clientsID ++
     ws.on('message', function incoming(data) {
@@ -34,9 +36,12 @@ wss.on('connection', function connection(ws) {
         case 'message/new': return messageNew(id, data)
         case 'room/new': return roomNew(id, data)
         case 'push/register': return registerPush(id, data)
+        case 'push/token': return setPush(id, data)
       }
     });
-
-    //ws.send('something');
+    ws.on('close', ()=>{
+      console.log("Client disconnected id:", id)
+      delete Clients[id]
+    }) 
 });
 
